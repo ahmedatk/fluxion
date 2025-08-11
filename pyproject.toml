@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fluxion"
+version = "0.1.0"
+description = "Fluxion — simple Python animation library"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [{name="Ahmed Isa Zaweel", email="ahmedzaweel@gmail.com"}]
+
+dependencies = [
+  "Pillow>=9.0.0",
+  "moviepy>=1.0.3"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
