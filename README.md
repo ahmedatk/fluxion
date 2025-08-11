@@ -8,3 +8,5 @@ Install dependencies:
 ```bash
 python -m pip install -r requirements.txt
 # or use pip install -e . after building the package
+
+bash
