@@ -1,36 +1,32 @@
 import os
-import tempfile
-from moviepy.editor import ImageSequenceClip
+import imageio
+import numpy as np
+from PIL import Image
 
-def export_frames_to_video(frames, fps, out_path):
-    # frames: list of PIL Images
-    tmpdir = tempfile.mkdtemp(prefix="fluxion_frames_")
-    paths = []
-    try:
-        for i, im in enumerate(frames):
-            p = os.path.join(tmpdir, f"frame_{i:05d}.png")
-            im.save(p)
-            paths.append(p)
-        clip = ImageSequenceClip(paths, fps=fps)
-        # choose codec depending on extension
-        ext = out_path.split(".")[-1].lower()
-        if ext in ("mp4", "m4v"):
-            clip.write_videofile(out_path, codec="libx264", audio=False, verbose=False, logger=None)
-        elif ext in ("gif",):
-            clip.write_gif(out_path, fps=fps, verbose=False, logger=None)
+def render_to_file(frames, output_path="output.mp4", fps=30):
+    """
+    Render a list of PIL Image frames to a video file without requiring system FFmpeg.
+    
+    Args:
+        frames (list): List of PIL.Image objects or NumPy arrays.
+        output_path (str): Output video file path.
+        fps (int): Frames per second.
+    """
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    # Convert all frames to RGB numpy arrays
+    processed_frames = []
+    for frame in frames:
+        if isinstance(frame, Image.Image):
+            frame = frame.convert("RGB")
+            processed_frames.append(np.array(frame))  # ✅ Convert PIL → NumPy
         else:
-            # default to mp4
-            clip.write_videofile(out_path, codec="libx264", audio=False, verbose=False, logger=None)
-    finally:
-        # cleanup frames
-        try:
-            for p in paths:
-                os.remove(p)
-            os.rmdir(tmpdir)
-        except Exception:
-            pass
+            processed_frames.append(frame)  # Already NumPy
 
-# convenience wrapper
-def render_to_file(scene, out_path):
-    frames = scene.play(export_path=None)  # get frames
-    export_frames_to_video(frames, scene.fps, out_path)
+    # Write video using imageio-ffmpeg
+    with imageio.get_writer(output_path, fps=fps) as writer:
+        for frame in processed_frames:
+            writer.append_data(frame)
+
+    print(f"✅ Video saved to {output_path}")
