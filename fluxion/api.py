@@ -1,15 +1,16 @@
-from PIL import Image, ImageDraw
-from .render.exporter import render_to_file
+from .scene3d import Scene3D, Camera
+from .objects.graph3d import ParametricSurface
+from .objects.curve3d import ParametricCurve
+from .objects.axes3d import Axes3D
+from .objects.latex import LaTeXPlane
+from .animation import TimeAnimator, FadeIn, Rotate, CameraPath
+from .exporter import save_video
+from .physics import projectile_motion, pendulum_simulation
 
-class Scene:
-    def __init__(self):
-        self.frames = []
-
-    def add_frame(self, draw_function):
-        img = Image.new("RGB", (800, 600), (255, 255, 255))
-        draw = ImageDraw.Draw(img)
-        draw_function(draw)
-        self.frames.append(img)
-
-    def render(self, output_path="output.mp4", fps=30):
-        render_to_file(self.frames, output_path, fps)
+__all__ = [
+    "Scene3D","Camera",
+    "ParametricSurface","ParametricCurve","Axes3D","LaTeXPlane",
+    "TimeAnimator","FadeIn","Rotate","CameraPath",
+    "save_video",
+    "projectile_motion","pendulum_simulation"
+]
